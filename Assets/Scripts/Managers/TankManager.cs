@@ -41,7 +41,7 @@ public class TankManager
     {
         m_Movement.enabled = false;
         m_Shooting.enabled = false;
-
+        m_Shooting.StopAllCoroutines();
         m_CanvasGameObject.SetActive(false);
     }
 
@@ -50,7 +50,7 @@ public class TankManager
     {
         m_Movement.enabled = true;
         m_Shooting.enabled = true;
-
+        m_Shooting.EnableCoroutine();
         m_CanvasGameObject.SetActive(true);
     }
 
@@ -59,7 +59,6 @@ public class TankManager
     {
         m_Instance.transform.position = m_SpawnPoint.position;
         m_Instance.transform.rotation = m_SpawnPoint.rotation;
-
         m_Instance.SetActive(false);
         m_Instance.SetActive(true);
     }

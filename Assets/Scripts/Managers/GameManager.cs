@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 //using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -11,7 +13,8 @@ public class GameManager : MonoBehaviour
     public CameraControl m_CameraControl;   
     public Text m_MessageText;              
     public GameObject m_TankPrefab;         
-    public TankManager[] m_Tanks;           
+    public TankManager[] m_Tanks;
+    public string[] Levels;
 
 
     private int m_RoundNumber;              
@@ -66,7 +69,7 @@ public class GameManager : MonoBehaviour
 
         if (m_GameWinner != null)
         {
-            Application.LoadLevel(Application.loadedLevel);
+            SceneManager.LoadScene("Round " + m_RoundNumber , LoadSceneMode.Additive);
         }
         else
         {

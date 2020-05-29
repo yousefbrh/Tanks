@@ -5,44 +5,45 @@ using UnityEngine.UI;
 
 public class TankShooting : MonoBehaviour
 {
-    public int m_PlayerNumber = 1;       
-    public Rigidbody m_Shell;            
+    public int m_PlayerNumber = 1;
+    public Rigidbody m_Shell;
     public Transform m_FireTransform;
     public Slider m_HeatSlider;
-    public Slider m_AimSlider;           
-    public AudioSource m_ShootingAudio;  
-    public AudioClip m_ChargingClip;     
-    public AudioClip m_FireClip;         
-    public float m_MinLaunchForce = 15f; 
-    public float m_MaxLaunchForce = 30f; 
+    public Slider m_AimSlider;
+    public AudioSource m_ShootingAudio;
+    public AudioClip m_ChargingClip;
+    public AudioClip m_FireClip;
+    public float m_MinLaunchForce = 15f;
+    public float m_MaxLaunchForce = 30f;
     public float m_MaxChargeTime = 0.75f;
-    public Color m_FullHeatColor = Color.red;  
+    public Color m_FullHeatColor = Color.red;
     public Color m_ZeroHeatColor = Color.yellow;
     public int m_PushFireKeyLimit = 7;
     public Image m_FillImage;
-    
-    private string m_FireButton;         
-    private float m_CurrentLaunchForce;  
-    private float m_ChargeSpeed;         
+
+    [SerializeField]private string m_FireButton;
+    private float m_CurrentLaunchForce;
+    private float m_ChargeSpeed;
     private bool m_Fired;
     private bool m_Heated;
     private WaitForSeconds m_CoolDown;
+    private bool m_CoroutineRunning;
 
     private void OnEnable()
     {
         m_CurrentLaunchForce = m_MinLaunchForce;
         m_AimSlider.value = m_MinLaunchForce;
+        m_FireButton = "Fire" + m_PlayerNumber;
     }
 
 
     private void Start()
     {
-        m_FireButton = "Fire" + m_PlayerNumber;
         m_HeatSlider.value = 0;
         m_ChargeSpeed = (m_MaxLaunchForce - m_MinLaunchForce) / m_MaxChargeTime;
-        StartCoroutine(Shooting());
         m_CoolDown = new WaitForSeconds(5);
     }
+
     private void Update()
     {
         FillReduce();
@@ -51,10 +52,12 @@ public class TankShooting : MonoBehaviour
 
     private void Fire()
     {
+        Debug.Log( "before" + m_Fired);
         // Instantiate and launch the shell.
         m_Fired = true;
-        
-        Rigidbody shellInstance = Instantiate(m_Shell , m_FireTransform.position , m_FireTransform.rotation) as Rigidbody;
+        Debug.Log("after" + m_Fired);
+
+        Rigidbody shellInstance = Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation) as Rigidbody;
 
         shellInstance.velocity = m_CurrentLaunchForce * m_FireTransform.forward;
 
@@ -64,10 +67,6 @@ public class TankShooting : MonoBehaviour
         m_CurrentLaunchForce = m_MinLaunchForce;
     }
 
-    private IEnumerator Shooting()
-    {
-        yield return StartCoroutine(FireHandle());
-    }
     private IEnumerator HeatHandle()
     {
         m_Heated = true;
@@ -105,12 +104,14 @@ public class TankShooting : MonoBehaviour
                 Fire();
                 m_HeatSlider.value += m_HeatSlider.maxValue / m_PushFireKeyLimit;
             }
+
             m_FillImage.color = Color.Lerp(m_ZeroHeatColor, m_FullHeatColor, m_HeatSlider.value);
             yield return null;
         }
-        yield return StartCoroutine(HeatHandle());
-        
+
+        StartCoroutine(HeatHandle());
     }
+
     private void FillReduce()
     {
         if (!m_Heated)
@@ -121,5 +122,10 @@ public class TankShooting : MonoBehaviour
         {
             m_HeatSlider.value -= 20 * Time.deltaTime;
         }
+    }
+
+    public void EnableCoroutine()
+    {
+        StartCoroutine(FireHandle());
     }
 }
