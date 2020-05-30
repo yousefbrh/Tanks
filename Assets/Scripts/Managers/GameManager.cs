@@ -21,7 +21,8 @@ public class GameManager : MonoBehaviour
     private WaitForSeconds m_StartWait;     
     private WaitForSeconds m_EndWait; 
     private TankManager m_RoundWinner;
-    private TankManager m_GameWinner;       
+    private TankManager m_GameWinner;
+    private PerkManager m_PerkManager;
 
 
     private void Start()
