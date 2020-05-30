@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,7 +28,7 @@ public class TankShooting : MonoBehaviour
     private bool m_Fired;
     private bool m_Heated;
     private WaitForSeconds m_CoolDown;
-    private bool m_CoroutineRunning;
+    private IEnumerator m_StopCoroutine;
 
     private void OnEnable()
     {
@@ -52,11 +53,8 @@ public class TankShooting : MonoBehaviour
 
     private void Fire()
     {
-        Debug.Log( "before" + m_Fired);
-        // Instantiate and launch the shell.
         m_Fired = true;
-        Debug.Log("after" + m_Fired);
-
+        
         Rigidbody shellInstance = Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation) as Rigidbody;
 
         shellInstance.velocity = m_CurrentLaunchForce * m_FireTransform.forward;
@@ -71,7 +69,7 @@ public class TankShooting : MonoBehaviour
     {
         m_Heated = true;
         yield return m_CoolDown;
-        StartCoroutine(FireHandle());
+        yield return StartCoroutine(FireHandle());
     }
 
     private IEnumerator FireHandle()
@@ -105,11 +103,10 @@ public class TankShooting : MonoBehaviour
                 m_HeatSlider.value += m_HeatSlider.maxValue / m_PushFireKeyLimit;
             }
 
-            m_FillImage.color = Color.Lerp(m_ZeroHeatColor, m_FullHeatColor, m_HeatSlider.value);
+            m_FillImage.color = Color.Lerp(m_ZeroHeatColor, m_FullHeatColor, m_HeatSlider.value/m_HeatSlider.maxValue);
             yield return null;
         }
-
-        StartCoroutine(HeatHandle());
+        yield return StartCoroutine(HeatHandle());
     }
 
     private void FillReduce()
@@ -122,10 +119,20 @@ public class TankShooting : MonoBehaviour
         {
             m_HeatSlider.value -= 20 * Time.deltaTime;
         }
+        m_FillImage.color = Color.Lerp(m_ZeroHeatColor, m_FullHeatColor, m_HeatSlider.value/m_HeatSlider.maxValue);
     }
 
     public void EnableCoroutine()
     {
-        StartCoroutine(FireHandle());
+        StartCoroutine(TankShootingLoop());
+    }
+
+    private IEnumerator TankShootingLoop()
+    {
+        yield return StartCoroutine(m_StopCoroutine = FireHandle());
+        StopCoroutine(m_StopCoroutine);
+        yield return StartCoroutine(m_StopCoroutine = HeatHandle());
+        StopCoroutine(m_StopCoroutine);
+        EnableCoroutine();
     }
 }
