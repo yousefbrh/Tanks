@@ -2,7 +2,6 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
-//using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -14,7 +13,7 @@ public class GameManager : MonoBehaviour
     public Text m_MessageText;              
     public GameObject m_TankPrefab;         
     public TankManager[] m_Tanks;
-    public string[] Levels;
+    public GameObject m_PerkManager;
 
 
     private int m_RoundNumber;              
@@ -22,21 +21,31 @@ public class GameManager : MonoBehaviour
     private WaitForSeconds m_EndWait; 
     private TankManager m_RoundWinner;
     private TankManager m_GameWinner;
-    private PerkManager m_PerkManager;
-
+    private PerkManager m_perk;
 
     private void Start()
     {
+        m_perk = m_PerkManager.GetComponent<PerkManager>();
         m_StartWait = new WaitForSeconds(m_StartDelay);
         m_EndWait = new WaitForSeconds(m_EndDelay);
-
         SpawnAllTanks();
         SetCameraTargets();
 
         StartCoroutine(GameLoop());
     }
 
+    private void DisablePerk()
+    {
+        m_PerkManager.SetActive(false);
+        m_perk.DisableClass();
+    }
 
+    private void EnablePerk()
+    {
+        m_PerkManager.SetActive(true);
+        m_perk.EnableClass();
+    }
+    
     private void SpawnAllTanks()
     {
         for (int i = 0; i < m_Tanks.Length; i++)
@@ -83,6 +92,7 @@ public class GameManager : MonoBehaviour
     {
         ResetAllTanks();
         DisableTankControl();
+        DisablePerk();
         
         m_CameraControl.SetStartPositionAndSize();
         m_RoundNumber++;
@@ -94,7 +104,8 @@ public class GameManager : MonoBehaviour
     private IEnumerator RoundPlaying()
     {
         EnableTankControl();
-
+        EnablePerk();
+        
         m_MessageText.text = string.Empty;
 
         while (!OneTankLeft())
@@ -106,6 +117,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator RoundEnding()
     {
         DisableTankControl();
+        DisablePerk();
         m_RoundWinner = null;
         m_RoundWinner = GetRoundWinner();
 
@@ -157,7 +169,6 @@ public class GameManager : MonoBehaviour
             if (m_Tanks[i].m_Wins == m_NumRoundsToWin)
                 return m_Tanks[i];
         }
-
         return null;
     }
 
@@ -207,5 +218,7 @@ public class GameManager : MonoBehaviour
         {
             m_Tanks[i].DisableControl();
         }
+        
     }
+
 }

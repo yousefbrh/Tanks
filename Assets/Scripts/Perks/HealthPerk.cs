@@ -2,19 +2,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 
 public class HealthPerk : MonoBehaviour
 {
-    // public GameObject m_Tank;
-    // public GameObject m_LevelArt;
-    public LayerMask m_LayerMask;
-    // Start is called before the first frame update
+    public LayerMask m_LayerMaskForAccess;
+    public LayerMask m_LayerMaskForDeny;
 
-    // Update is called once per frame
+    private void Start()
+    {
+        Destroy(gameObject , 15);
+    }
+
+    public bool CheckCollide(Vector3 pos)
+    {
+        return Physics.CheckSphere(pos, 5f, m_LayerMaskForDeny);
+    }
     private void OnTriggerEnter(Collider other)
     {
-        Collider[] colliders = Physics.OverlapBox(gameObject.transform.position, transform.localScale / 2,
-            Quaternion.identity, m_LayerMask);
+        Collider[] colliders = Physics.OverlapBox(transform.position, transform.localScale / 2,
+            Quaternion.identity, m_LayerMaskForAccess);
         for (int i = 0; i < colliders.Length; i++)
         {
             Rigidbody targetRigidbody = colliders[i].GetComponent<Rigidbody>();

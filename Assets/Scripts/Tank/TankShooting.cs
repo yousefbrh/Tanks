@@ -129,10 +129,10 @@ public class TankShooting : MonoBehaviour
 
     private IEnumerator TankShootingLoop()
     {
-        yield return StartCoroutine(m_StopCoroutine = FireHandle());
-        StopCoroutine(m_StopCoroutine);
-        yield return StartCoroutine(m_StopCoroutine = HeatHandle());
-        StopCoroutine(m_StopCoroutine);
+        yield return StartCoroutine(FireHandle());
+        StopCoroutine(FireHandle());
+        yield return StartCoroutine(HeatHandle());
+        StopCoroutine(HeatHandle());
         EnableCoroutine();
     }
 }
