@@ -39,9 +39,9 @@ public class TankManager
 
     public void DisableControl()
     {
+        m_Shooting.DisableShooting();
         m_Movement.enabled = false;
         m_Shooting.enabled = false;
-        m_Shooting.StopAllCoroutines();
         m_CanvasGameObject.SetActive(false);
     }
 

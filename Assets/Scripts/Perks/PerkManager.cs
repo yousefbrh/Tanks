@@ -36,14 +36,14 @@ public class PerkManager : MonoBehaviour
     }
 
     private IEnumerator SetPosition()
-    {
-        m_Position = new Vector3(Random.Range(xMin , xMax) , m_Health.transform.position.y , Random.Range(zMin , zMax));
-        while (m_HealthPerk.CheckCollide(m_Position))
-        {
-            m_Position = new Vector3(Random.Range(xMin , xMax) , m_Health.transform.position.y , Random.Range(zMin , zMax));
-            yield return null;
-        }
-    }
+         {
+             m_Position = new Vector3(Random.Range(xMin , xMax) , m_Health.transform.position.y , Random.Range(zMin , zMax));
+             while (m_HealthPerk.CheckCollide(m_Position))
+             {
+                 m_Position = new Vector3(Random.Range(xMin , xMax) , m_Health.transform.position.y , Random.Range(zMin , zMax));
+                 yield return null;
+             }
+         }
     private IEnumerator SpawnHealthPerk()
     {
         m_Instance.Add(Instantiate(m_Health, m_Position, Quaternion.identity)); 

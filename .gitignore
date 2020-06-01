@@ -10,6 +10,7 @@
 /[Bb]uilds/
 /[Uu]nityGenerated/
 /[Ll]ocal[Cc]ache/
+/.idea/
 
 # Auto-generated Visual Studio or MonoDevelop solution and project files
 *.csproj

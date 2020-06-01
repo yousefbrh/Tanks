@@ -69,7 +69,6 @@ public class TankShooting : MonoBehaviour
     {
         m_Heated = true;
         yield return m_CoolDown;
-        yield return StartCoroutine(FireHandle());
     }
 
     private IEnumerator FireHandle()
@@ -106,7 +105,6 @@ public class TankShooting : MonoBehaviour
             m_FillImage.color = Color.Lerp(m_ZeroHeatColor, m_FullHeatColor, m_HeatSlider.value/m_HeatSlider.maxValue);
             yield return null;
         }
-        yield return StartCoroutine(HeatHandle());
     }
 
     private void FillReduce()
@@ -134,5 +132,11 @@ public class TankShooting : MonoBehaviour
         yield return StartCoroutine(HeatHandle());
         StopCoroutine(HeatHandle());
         EnableCoroutine();
+    }
+
+    public void DisableShooting()
+    {
+        StopAllCoroutines();
+        m_HeatSlider.value = 0;
     }
 }

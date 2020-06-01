@@ -8,10 +8,10 @@ public class HealthPerk : MonoBehaviour
 {
     public LayerMask m_LayerMaskForAccess;
     public LayerMask m_LayerMaskForDeny;
-
+    
     private void Start()
     {
-        Destroy(gameObject , 15);
+        Destroy(gameObject , 10);
     }
 
     public bool CheckCollide(Vector3 pos)
@@ -20,6 +20,8 @@ public class HealthPerk : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Shell"))
+            return;
         Collider[] colliders = Physics.OverlapBox(transform.position, transform.localScale / 2,
             Quaternion.identity, m_LayerMaskForAccess);
         for (int i = 0; i < colliders.Length; i++)
@@ -37,6 +39,7 @@ public class HealthPerk : MonoBehaviour
 
             targetHealth.TakeHealth(25f);
         }
+        
         Destroy(gameObject);
     }
 }
