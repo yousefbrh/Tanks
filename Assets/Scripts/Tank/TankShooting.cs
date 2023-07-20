@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,12 +30,13 @@ public class TankShooting : MonoBehaviour
     private bool m_Heated;
     private WaitForSeconds m_CoolDown;
     private IEnumerator m_StopCoroutine;
+    private PhotonView _view;
 
     private void OnEnable()
     {
         m_CurrentLaunchForce = m_MinLaunchForce;
         m_AimSlider.value = m_MinLaunchForce;
-        m_FireButton = "Fire" + m_PlayerNumber;
+        m_FireButton = "Fire2";
     }
 
 
@@ -73,7 +75,13 @@ public class TankShooting : MonoBehaviour
 
     private IEnumerator FireHandle()
     {
-        m_Heated = false;
+        if (!_view)
+        {
+            _view = GetComponent<PhotonView>();
+        }
+        if (_view.IsMine)
+        {
+            m_Heated = false;
         while (m_HeatSlider.value < 99)
         {
             m_AimSlider.value = m_MinLaunchForce;
@@ -104,6 +112,7 @@ public class TankShooting : MonoBehaviour
 
             m_FillImage.color = Color.Lerp(m_ZeroHeatColor, m_FullHeatColor, m_HeatSlider.value/m_HeatSlider.maxValue);
             yield return null;
+        }
         }
     }
 

@@ -1,12 +1,14 @@
 ﻿using System;
+using Photon.Pun;
 using UnityEngine;
 
 [Serializable]
 public class TankManager
 {
+    public int ID;
     public Color m_PlayerColor;            
-    public Transform m_SpawnPoint;         
-    [HideInInspector] public int m_PlayerNumber;             
+    public Transform m_SpawnPoint;       
+    public int m_PlayerNumber;             
     [HideInInspector] public string m_ColoredPlayerText;
     [HideInInspector] public GameObject m_Instance;          
     [HideInInspector] public int m_Wins;                     
@@ -14,6 +16,7 @@ public class TankManager
 
     private TankMovement m_Movement;       
     private TankShooting m_Shooting;
+    private PhotonView _view;
     private GameObject m_CanvasGameObject;
 
 
@@ -21,8 +24,9 @@ public class TankManager
     {
         m_Movement = m_Instance.GetComponent<TankMovement>();
         m_Shooting = m_Instance.GetComponent<TankShooting>();
+        _view = m_Instance.GetComponent<PhotonView>();
         m_CanvasGameObject = m_Instance.GetComponentInChildren<Canvas>().gameObject;
-
+        
         m_Movement.m_PlayerNumber = m_PlayerNumber;
         m_Shooting.m_PlayerNumber = m_PlayerNumber;
 

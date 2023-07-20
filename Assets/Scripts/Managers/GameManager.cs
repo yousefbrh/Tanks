@@ -1,6 +1,9 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Photon.Pun;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -12,7 +15,7 @@ public class GameManager : MonoBehaviour
     public CameraControl m_CameraControl;   
     public Text m_MessageText;              
     public GameObject m_TankPrefab;         
-    public TankManager[] m_Tanks;
+    public List<TankManager> m_Tanks;
     public GameObject m_PerkManager;
 
 
@@ -23,14 +26,22 @@ public class GameManager : MonoBehaviour
     private TankManager m_GameWinner;
     private PerkManager m_perk;
 
+    public static GameManager Instance;
+
+    private void Awake()
+    {
+        if (!Instance)
+            Instance = this;
+    }
+
     private void Start()
     {
         m_perk = m_PerkManager.GetComponent<PerkManager>();
         m_StartWait = new WaitForSeconds(m_StartDelay);
         m_EndWait = new WaitForSeconds(m_EndDelay);
-        SpawnAllTanks();
+        SpawnTank();
         SetCameraTargets();
-
+        PhotonNetwork.onGameObjectCreated += SetupEnemies;
         StartCoroutine(GameLoop());
     }
 
@@ -46,31 +57,31 @@ public class GameManager : MonoBehaviour
         m_perk.EnableClass();
     }
     
-    private void SpawnAllTanks()
+    private void SpawnTank()
     {
-        for (int i = 0; i < m_Tanks.Length; i++)
-        {
-            m_Tanks[i].m_Instance =
-                Instantiate(m_TankPrefab, m_Tanks[i].m_SpawnPoint.position, m_Tanks[i].m_SpawnPoint.rotation) as GameObject;
-            m_Tanks[i].m_PlayerNumber = i + 1;
-            m_Tanks[i].Setup();
-        }
+        var go = PhotonNetwork.Instantiate(m_TankPrefab.name, Vector3.zero, Quaternion.identity) as GameObject;
+        SetupEnemies(go);
     }
 
+    public void SetupEnemies(GameObject go)
+    {
+        var view = go.GetComponent<PhotonView>();
+        var target = m_Tanks.Find(t => t.ID == view.ViewID);
+        go.transform.position = target.m_SpawnPoint.position;
+        go.transform.rotation = target.m_SpawnPoint.rotation;
+        target.m_Instance = go;
+        target.Setup();
+    }
 
     private void SetCameraTargets()
     {
-        Transform[] targets = new Transform[m_Tanks.Length];
+        var availableTargets = m_Tanks.FindAll(t => t.m_Instance != null);
 
-        for (int i = 0; i < targets.Length; i++)
-        {
-            targets[i] = m_Tanks[i].m_Instance.transform;
-        }
+        var targets = availableTargets.Select(availableTarget => availableTarget.m_Instance.transform).ToList();
 
         m_CameraControl.m_Targets = targets;
     }
-
-
+    
     private IEnumerator GameLoop()
     {
         yield return StartCoroutine(RoundStarting());
@@ -86,8 +97,7 @@ public class GameManager : MonoBehaviour
             StartCoroutine(GameLoop());
         }
     }
-
-
+    
     private IEnumerator RoundStarting()
     {
         ResetAllTanks();
@@ -99,8 +109,7 @@ public class GameManager : MonoBehaviour
         m_MessageText.text = "Round " + m_RoundNumber;
         yield return m_StartWait;
     }
-
-
+    
     private IEnumerator RoundPlaying()
     {
         EnableTankControl();
@@ -135,44 +144,26 @@ public class GameManager : MonoBehaviour
         yield return m_EndWait;
     }
 
-
     private bool OneTankLeft()
     {
-        int numTanksLeft = 0;
-
-        for (int i = 0; i < m_Tanks.Length; i++)
-        {
-            if (m_Tanks[i].m_Instance.activeSelf)
-                numTanksLeft++;
-        }
-
+        var availableTanks = m_Tanks.FindAll(t => t.m_Instance != null);
+        var numTanksLeft = availableTanks.Count(availableTank => availableTank.m_Instance.activeSelf);
         return numTanksLeft <= 1;
     }
 
-
     private TankManager GetRoundWinner()
     {
-        for (int i = 0; i < m_Tanks.Length; i++)
-        {
-            if (m_Tanks[i].m_Instance.activeSelf)
-                return m_Tanks[i];
-        }
-
-        return null;
+        var availableTanks = m_Tanks.FindAll(t => t.m_Instance != null);
+        var winner = availableTanks.Find(t => t.m_Instance.activeSelf);
+        return winner;
     }
-
-
+    
     private TankManager GetGameWinner()
     {
-        for (int i = 0; i < m_Tanks.Length; i++)
-        {
-            if (m_Tanks[i].m_Wins == m_NumRoundsToWin)
-                return m_Tanks[i];
-        }
-        return null;
+        var availableTanks = m_Tanks.FindAll(t => t.m_Instance != null);
+        return availableTanks.FirstOrDefault(availableTank => availableTank.m_Wins == m_NumRoundsToWin);
     }
-
-
+    
     private string EndMessage()
     {
         string message = "DRAW!";
@@ -181,10 +172,12 @@ public class GameManager : MonoBehaviour
             message = m_RoundWinner.m_ColoredPlayerText + " WINS THE ROUND!";
 
         message += "\n\n\n\n";
+        
+        var availableTanks = m_Tanks.FindAll(t => t.m_Instance != null);
 
-        for (int i = 0; i < m_Tanks.Length; i++)
+        foreach (var availableTank in availableTanks)
         {
-            message += m_Tanks[i].m_ColoredPlayerText + ": " + m_Tanks[i].m_Wins + " WINS\n";
+            message += availableTank.m_ColoredPlayerText + ": " + availableTank.m_Wins + " WINS\n";
         }
 
         if (m_GameWinner != null)
@@ -193,32 +186,33 @@ public class GameManager : MonoBehaviour
         return message;
     }
 
-
     private void ResetAllTanks()
     {
-        for (int i = 0; i < m_Tanks.Length; i++)
+        var availableTanks = m_Tanks.FindAll(t => t.m_Instance != null);
+
+        foreach (var availableTank in availableTanks)
         {
-            m_Tanks[i].Reset();
+            availableTank.Reset();
         }
     }
-
 
     private void EnableTankControl()
     {
-        for (int i = 0; i < m_Tanks.Length; i++)
+        var availableTanks = m_Tanks.FindAll(t => t.m_Instance != null);
+
+        foreach (var availableTank in availableTanks)
         {
-            m_Tanks[i].EnableControl();
+            availableTank.EnableControl();
         }
     }
-
-
+    
     private void DisableTankControl()
     {
-        for (int i = 0; i < m_Tanks.Length; i++)
-        {
-            m_Tanks[i].DisableControl();
-        }
-        
-    }
+        var availableTanks = m_Tanks.FindAll(t => t.m_Instance != null);
 
+        foreach (var availableTank in availableTanks)
+        {
+            availableTank.DisableControl();
+        }
+    }
 }

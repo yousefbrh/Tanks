@@ -88,6 +88,8 @@ namespace Photon.Pun
             }
         }
 
+        public static Action<GameObject> onGameObjectCreated;
+
         private static string gameVersion;
 
         /// <summary>Sent to Photon Server to specify the "Virtual AppId".</summary>
@@ -2569,7 +2571,9 @@ namespace Photon.Pun
 
 
             Pun.InstantiateParameters netParams = new InstantiateParameters(prefabName, position, rotation, group, incomingInstantiationData, objLevelPrefix, viewsIDs, creator, serverTime);
-            return NetworkInstantiate(netParams, false, true);
+            var go = NetworkInstantiate(netParams, false, true);
+            onGameObjectCreated?.Invoke(go);
+            return go;
         }
 
 
