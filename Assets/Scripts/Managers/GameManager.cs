@@ -19,7 +19,9 @@ public class GameManager : MonoBehaviour
     public GameObject m_PerkManager;
 
 
-    private int m_RoundNumber;              
+    private int m_RoundNumber;   
+    private bool _isStarted;
+    private bool _isFinished;       
     private WaitForSeconds m_StartWait;     
     private WaitForSeconds m_EndWait; 
     private TankManager m_RoundWinner;
@@ -71,6 +73,7 @@ public class GameManager : MonoBehaviour
         go.transform.rotation = target.m_SpawnPoint.rotation;
         target.m_Instance = go;
         target.Setup();
+        SetCameraTargets();
     }
 
     private void SetCameraTargets()
@@ -117,7 +120,7 @@ public class GameManager : MonoBehaviour
         
         m_MessageText.text = string.Empty;
 
-        while (!OneTankLeft())
+        while (!_isFinished)
         {
             yield return null; 
         }

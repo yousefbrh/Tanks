@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using DefaultNamespace;
 using Photon.Pun;
 using UnityEngine;
@@ -10,7 +11,6 @@ namespace PUN
     {
         [SerializeField] private GameObject playerPrefab;
         [SerializeField] private List<Transform> placements;
-        [SerializeField] private TankManager[] tanks;
 
         private void Start()
         {

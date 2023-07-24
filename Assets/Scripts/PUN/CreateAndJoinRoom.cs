@@ -23,7 +23,13 @@ namespace PUN
 
         public override void OnJoinedRoom()
         {
-            SceneManager.LoadScene("Main");
+            PhotonNetwork.LoadLevel("Main");
+        }
+
+        public override void OnJoinRoomFailed(short returnCode, string message)
+        {
+            base.OnJoinRoomFailed(returnCode, message);
+            Debug.Log(message);
         }
     }
 }
