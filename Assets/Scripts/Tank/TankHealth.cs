@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using Photon.Pun;
+using UnityEngine;
 using UnityEngine.UI;
 
-public class TankHealth : MonoBehaviour
+public class TankHealth : MonoBehaviourPunCallbacks , IPunObservable
 {
     public float m_StartingHealth = 100f;          
     public Slider m_Slider;                        
@@ -13,9 +15,9 @@ public class TankHealth : MonoBehaviour
     private AudioSource m_ExplosionAudio;          
     private ParticleSystem m_ExplosionParticles;   
     public float m_CurrentHealth;  
-    private bool m_Dead;            
-
-
+    private bool m_Dead;
+    private PhotonView _view;
+    
     private void Awake()
     {
         m_ExplosionParticles = Instantiate(m_ExplosionPrefab).GetComponent<ParticleSystem>();
@@ -24,9 +26,14 @@ public class TankHealth : MonoBehaviour
         m_ExplosionParticles.gameObject.SetActive(false);
     }
 
-
-    private void OnEnable()
+    private void Start()
     {
+        _view = GetComponent<PhotonView>();
+    }
+    
+    public override void OnEnable()
+    {
+        base.OnEnable();
         m_CurrentHealth = m_StartingHealth;
         m_Dead = false;
 
@@ -36,6 +43,15 @@ public class TankHealth : MonoBehaviour
     {
         // Adjust the tank's current health, update the UI based on the new health and check whether or not the tank is dead.
 
+        if (_view.IsMine)
+        {
+            _view.RPC("RPC_TakeDamage", RpcTarget.AllViaServer, amount);
+        }
+    }
+
+    [PunRPC]
+    private void RPC_TakeDamage(float amount)
+    {
         m_CurrentHealth -= amount;
         
         SetHealthUI();
@@ -78,5 +94,17 @@ public class TankHealth : MonoBehaviour
     {
         m_CurrentHealth += amount;
         SetHealthUI();
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(m_CurrentHealth);
+        }
+        else
+        {
+            m_CurrentHealth = (int)stream.ReceiveNext();
+        }
     }
 }

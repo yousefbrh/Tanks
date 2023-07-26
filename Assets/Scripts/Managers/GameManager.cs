@@ -55,8 +55,11 @@ public class GameManager : MonoBehaviour
 
     private void EnablePerk()
     {
-        m_PerkManager.SetActive(true);
-        m_perk.EnableClass();
+        if (PhotonNetwork.IsMasterClient)
+        {
+            m_PerkManager.SetActive(true);
+            m_perk.EnableClass();
+        }
     }
     
     private void SpawnTank()

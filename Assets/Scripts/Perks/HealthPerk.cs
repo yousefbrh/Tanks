@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
@@ -40,6 +41,6 @@ public class HealthPerk : MonoBehaviour
             targetHealth.TakeHealth(25f);
         }
         
-        Destroy(gameObject);
+        PhotonNetwork.Destroy(gameObject);
     }
 }

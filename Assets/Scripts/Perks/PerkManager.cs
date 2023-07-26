@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -45,7 +46,7 @@ public class PerkManager : MonoBehaviour
          }
     private IEnumerator SpawnHealthPerk()
     {
-        m_Instance.Add(Instantiate(m_Health, m_Position, Quaternion.identity)); 
+        m_Instance.Add(PhotonNetwork.Instantiate(m_Health.name, m_Position, Quaternion.identity));
         yield break;
     }
 
