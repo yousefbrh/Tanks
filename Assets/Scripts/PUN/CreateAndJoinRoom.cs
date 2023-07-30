@@ -1,8 +1,7 @@
+using Managers;
 using Photon.Pun;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace PUN
 {
@@ -11,25 +10,21 @@ namespace PUN
         [SerializeField] private TMP_InputField createInputField;
         [SerializeField] private TMP_InputField joinInputField;
 
+        private MultiplayerManager _multiplayerManager;
+
+        private void Start()
+        {
+            _multiplayerManager = MultiplayerManager.Instance;
+        }
+
         public void CreateRoom()
         {
-            PhotonNetwork.CreateRoom(createInputField.text);
+            _multiplayerManager.CreateRoom(createInputField.text);
         }
 
         public void JoinRoom()
         {
-            PhotonNetwork.JoinRoom(joinInputField.text);
-        }
-
-        public override void OnJoinedRoom()
-        {
-            PhotonNetwork.LoadLevel("Main");
-        }
-
-        public override void OnJoinRoomFailed(short returnCode, string message)
-        {
-            base.OnJoinRoomFailed(returnCode, message);
-            Debug.Log(message);
+            _multiplayerManager.JoinRoom(joinInputField.text);
         }
     }
 }

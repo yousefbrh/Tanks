@@ -1,8 +1,8 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Managers;
 using Photon.Pun;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
     private TankManager m_RoundWinner;
     private TankManager m_GameWinner;
     private PerkManager m_perk;
+    private MultiplayerManager _multiplayerManager;
 
     public static GameManager Instance;
 
@@ -39,12 +40,13 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        _multiplayerManager = MultiplayerManager.Instance;
         m_perk = m_PerkManager.GetComponent<PerkManager>();
         m_StartWait = new WaitForSeconds(m_StartDelay);
         m_EndWait = new WaitForSeconds(m_EndDelay);
         SpawnTank();
         SetCameraTargets();
-        PhotonNetwork.onGameObjectCreated += SetupEnemies;
+        _multiplayerManager.onGameObjectCreated += SetupEnemies;
         StartCoroutine(GameLoop());
     }
 
@@ -56,7 +58,7 @@ public class GameManager : MonoBehaviour
 
     private void EnablePerk()
     {
-        if (PhotonNetwork.IsMasterClient)
+        if (MultiplayerManager.Instance.IsMasterClient())
         {
             m_PerkManager.SetActive(true);
             m_perk.EnableClass();
@@ -65,7 +67,7 @@ public class GameManager : MonoBehaviour
     
     private void SpawnTank()
     {
-        var go = PhotonNetwork.Instantiate(m_TankPrefab.name, Vector3.zero, Quaternion.identity) as GameObject;
+        var go = _multiplayerManager.Instantiate(m_TankPrefab.name, Vector3.zero, Quaternion.identity);
         SetupEnemies(go);
     }
 

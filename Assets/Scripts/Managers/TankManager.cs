@@ -16,7 +16,6 @@ public class TankManager
 
     private TankMovement m_Movement;       
     private TankShooting m_Shooting;
-    private PhotonView _view;
     private GameObject m_CanvasGameObject;
 
 
@@ -24,7 +23,6 @@ public class TankManager
     {
         m_Movement = m_Instance.GetComponent<TankMovement>();
         m_Shooting = m_Instance.GetComponent<TankShooting>();
-        _view = m_Instance.GetComponent<PhotonView>();
         m_CanvasGameObject = m_Instance.GetComponentInChildren<Canvas>().gameObject;
         
         m_Movement.m_PlayerNumber = m_PlayerNumber;

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Photon.Pun;
+﻿using Managers;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 public class HealthPerk : MonoBehaviour
 {
@@ -51,7 +47,6 @@ public class HealthPerk : MonoBehaviour
 
     private void Destroyer()
     {
-        if (PhotonNetwork.IsMasterClient)
-            PhotonNetwork.Destroy(gameObject);
+        MultiplayerManager.Instance.Destroy(gameObject);
     }
 }
