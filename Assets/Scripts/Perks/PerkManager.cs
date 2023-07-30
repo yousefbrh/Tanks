@@ -59,7 +59,7 @@ public class PerkManager : MonoBehaviour
     {
         for (int i = 0; i < m_Instance.Count; i++)
         {
-            Destroy(m_Instance[i]);
+            PhotonNetwork.Destroy(m_Instance[i]);
         }
         StopAllCoroutines();
     }

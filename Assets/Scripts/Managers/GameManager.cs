@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     public GameObject m_TankPrefab;         
     public List<TankManager> m_Tanks;
     public GameObject m_PerkManager;
+    public LayerMask tankLayer;
 
 
     private int m_RoundNumber;   
@@ -70,6 +71,7 @@ public class GameManager : MonoBehaviour
 
     public void SetupEnemies(GameObject go)
     {
+        if ((tankLayer & (1 << go.layer)) == 0) return;
         var view = go.GetComponent<PhotonView>();
         var target = m_Tanks.Find(t => t.ID == view.ViewID);
         go.transform.position = target.m_SpawnPoint.position;

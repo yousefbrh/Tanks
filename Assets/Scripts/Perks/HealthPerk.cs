@@ -12,7 +12,7 @@ public class HealthPerk : MonoBehaviour
     
     private void Start()
     {
-        Destroy(gameObject , 10);
+        DestroyerWithDelay(10);
     }
 
     public bool CheckCollide(Vector3 pos)
@@ -41,6 +41,17 @@ public class HealthPerk : MonoBehaviour
             targetHealth.TakeHealth(25f);
         }
         
-        PhotonNetwork.Destroy(gameObject);
+        Destroyer();
+    }
+
+    private void DestroyerWithDelay(float time)
+    {
+        Invoke(nameof(Destroyer), time);
+    }
+
+    private void Destroyer()
+    {
+        if (PhotonNetwork.IsMasterClient)
+            PhotonNetwork.Destroy(gameObject);
     }
 }

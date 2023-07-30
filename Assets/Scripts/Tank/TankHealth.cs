@@ -3,7 +3,7 @@ using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TankHealth : MonoBehaviourPunCallbacks , IPunObservable
+public class TankHealth : MonoBehaviour
 {
     public float m_StartingHealth = 100f;          
     public Slider m_Slider;                        
@@ -31,9 +31,8 @@ public class TankHealth : MonoBehaviourPunCallbacks , IPunObservable
         _view = GetComponent<PhotonView>();
     }
     
-    public override void OnEnable()
+    private void OnEnable()
     {
-        base.OnEnable();
         m_CurrentHealth = m_StartingHealth;
         m_Dead = false;
 
@@ -92,19 +91,16 @@ public class TankHealth : MonoBehaviourPunCallbacks , IPunObservable
 
     public void TakeHealth(float amount)
     {
-        m_CurrentHealth += amount;
-        SetHealthUI();
+        if (_view.IsMine)
+        {
+            _view.RPC("RPC_TakeHealth", RpcTarget.AllViaServer, amount);
+        }
     }
 
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    [PunRPC]
+    private void RPC_TakeHealth(float amount)
     {
-        if (stream.IsWriting)
-        {
-            stream.SendNext(m_CurrentHealth);
-        }
-        else
-        {
-            m_CurrentHealth = (int)stream.ReceiveNext();
-        }
+        m_CurrentHealth += amount;
+        SetHealthUI();
     }
 }
