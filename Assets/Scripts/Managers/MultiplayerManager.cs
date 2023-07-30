@@ -1,5 +1,6 @@
 using System;
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 
 namespace Managers
@@ -9,6 +10,7 @@ namespace Managers
         public static MultiplayerManager Instance;
         
         public Action<GameObject> onGameObjectCreated;
+        public Action onRoomIsFull;
 
         private void Awake()
         {
@@ -49,9 +51,12 @@ namespace Managers
             PhotonNetwork.LoadLevel("Lobby");
         }
         
-        public void CreateRoom(string text)
+        public void CreateRoom(string text, int capacity)
         {
-            PhotonNetwork.CreateRoom(text);
+            PhotonNetwork.CreateRoom(text, new RoomOptions()
+            {
+                MaxPlayers = capacity
+            });
         }
 
         public void JoinRoom(string text)
@@ -67,6 +72,10 @@ namespace Managers
         public override void OnJoinRoomFailed(short returnCode, string message)
         {
             base.OnJoinRoomFailed(returnCode, message);
+            if (returnCode == 32765)
+            {
+                onRoomIsFull?.Invoke(); 
+            }
             Debug.Log(message);
         }
 
