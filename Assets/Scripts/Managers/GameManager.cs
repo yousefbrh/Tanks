@@ -47,7 +47,6 @@ public class GameManager : MonoBehaviour
         SpawnTank();
         SetCameraTargets();
         _multiplayerManager.onGameObjectCreated += SetupEnemies;
-        StartCoroutine(GameLoop());
     }
 
     private void DisablePerk()
@@ -81,6 +80,14 @@ public class GameManager : MonoBehaviour
         target.m_Instance = go;
         target.Setup();
         SetCameraTargets();
+        CheckGameStartState();
+    }
+
+    private void CheckGameStartState()
+    {
+        var availableTargets = m_Tanks.FindAll(t => t.m_Instance != null);
+        if (availableTargets.Count == PhotonNetwork.CurrentRoom.MaxPlayers)
+            StartCoroutine(GameLoop());
     }
 
     private void SetCameraTargets()
